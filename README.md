@@ -1,5 +1,5 @@
 # SMPE_Mondagon
-This is repository will gather the files and information abour the Scientific Methodology and (emPirical|exPerimental) Evaluation course of the University of Grenoble Alpes
+This is repository will gather the files and information about the Scientific Methodology and (emPirical|exPerimental) Evaluation course of the University of Grenoble Alpes
 
 ## 26/09/22 [ AL ] Presentation of the lecture | Processing data with the Tidyverse, beautiful viz with ggplot
    + Mattermost ID: @rodolfo-mondragon

@@ -14,8 +14,8 @@ This is repository will gather the files and information about the Scientific Me
            - Module 1: in progress
            - Module 2: pending
 ## 03/10/23 [ JMV ] Introduction to the scientific method and computer science epistemology | Publications | Visualization and Exploratory Data Analysis
-   + Read Popper’s text and write a short summary in your GitHub repository
-   + Criticize every figure of Jean-Marc’s slides by:
+   + Read Popper’s text and write a short summary in your GitHub repository ✔ (File in the homework folder)
+   + Criticize every figure of Jean-Marc’s slides by: ✔ (File in the homework folder)
       - Applying the checklist for good graphics;
       - Proposing a better representation (hand-drawing is fine) that passes the checklist.
    + MOOC modules:

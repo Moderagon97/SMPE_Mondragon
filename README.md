@@ -19,6 +19,7 @@ This is repository will gather the files and information about the Scientific Me
       - Applying the checklist for good graphics;
       - Proposing a better representation (hand-drawing is fine) that passes the checklist.
    + MOOC modules:
-      - Module 1 in progress
+      - Module 1 ✔
+      - module 2 inprogress
    + Hands-On Project: Fitss Law evaluation
       - Reported Some of the results images and code in the pad 

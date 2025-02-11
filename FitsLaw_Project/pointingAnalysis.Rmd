@@ -1,0 +1,220 @@
+---
+title: "PointingXP"
+author: "Céline Coutrix"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading libraries
+
+```{r loading ggplot2}
+library(ggplot2)
+```
+
+## Loading data
+
+```{r loading csv data into a dataframe}
+meanMTdf <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data/20211117_1527_MeanMT.csv", header=T)
+rawdf <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data/20211117_1527_RawData.csv", header=T)
+```
+
+## Plotting the data together with the linear regression mean data
+
+```{r Plotting the raw data together with the linear regression}
+ggplot(meanMTdf, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+## Linear modelling mean data
+```{r}
+model00 <- lm(MT~ID, data = meanMTdf)
+summary(model00)
+```
+## Plotting the data together with the linear regression raw data
+```{r Plotting the raw data together with the linear regression}
+ggplot(rawdf, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+## Linear modelling raw data
+
+```{r linear modeling}
+model0 <- lm(MT~ID, data = rawdf)
+summary(model0)
+```
+
+Weirdly, in contrast to what Fitts' law says, ID does not seem to have an impact on the movement time. 
+Also, the R2=0.218 reported by the [experimental software](http://ergo.human.cornell.edu/FittsLaw/FittsLaw.html) and the R2=0.008146 I find here, are different.
+
+##  Now with my own data (IMPORTING)
+```{r}
+meanMTdf_o <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data2/20211117_1527_MeanMT.csv", header=T)
+rawdf_o <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data2/20211117_1527_RawData.csv", header=T)
+```
+
+## Plotting the data together with the linear regression mean data
+
+```{r Plotting the raw data together with the linear regression}
+ggplot(meanMTdf_o, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+## Linear modelling mean data
+```{r}
+model1 <- lm(MT~ID, data = meanMTdf_o)
+summary(model1)
+```
+## Plotting the data together with the linear regression raw data
+```{r Plotting the raw data together with the linear regression}
+ggplot(rawdf_o, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+## Linear modelling raw data
+
+```{r linear modeling}
+model2 <- lm(MT~ID, data = rawdf_o)
+summary(model2)
+```
+
+## Comparing original mean data vs new mean data
+```{r}
+p <- ggplot() + 
+  #plot 1
+  geom_point(data=meanMTdf_o,aes(x=ID, y=MT)) +
+  geom_smooth(data=meanMTdf_o,method='lm',aes(x=ID, y=MT), fill="blue",colour="darkblue", linewidth=1) +
+  #plot 2
+  geom_point(data=meanMTdf,aes(x=ID, y=MT)) +
+  geom_smooth(data=meanMTdf,method='lm',aes(x=ID, y=MT), fill="red",colour="red", linewidth=1)
+
+print(p)
+```
+
+
+## Seems that the original author also discarded some IDs, because they said that they had 6 registers but there are only 4. Checking which ones are missing
+```{r}
+missing_in_meanMTdf <- setdiff(unique(meanMTdf_o$ID), unique(meanMTdf$ID))
+missing_in_meanMTdf_o <- setdiff(unique(meanMTdf$ID), unique(meanMTdf_o$ID))
+
+print("IDs in meanMTdf_o but missing in meanMTdf:")
+print(missing_in_meanMTdf)
+
+print("IDs in meanMTdf but missing in meanMTdf_o:")
+print(missing_in_meanMTdf_o)
+
+```
+#It looks like they took out the last ID as well (not only the first that doesnt count) because of the experimental procedure. 
+
+#Also, it looks like we can't identify the which points belong to which dataframe in the previous plot, lets fix that.
+
+
+```{r}
+# Find the maximum ID value
+max_id <- max(meanMTdf_o$ID)
+
+# Remove rows where ID == max_id
+meanMTdf_o <- meanMTdf_o[meanMTdf_o$ID != max_id, ]
+
+# Print to verify
+print(unique(meanMTdf_o$ID))  # Should no longer contain the max ID
+
+
+# Find the common range for x and y axes
+x_min <- min(c(meanMTdf$ID, meanMTdf_o$ID))
+x_max <- max(c(meanMTdf$ID, meanMTdf_o$ID))
+y_min <- min(c(meanMTdf$MT, meanMTdf_o$MT))
+y_max <- max(c(meanMTdf$MT, meanMTdf_o$MT))
+
+# Improved plot with color distinction and aligned axes
+p <- ggplot() + 
+  # First dataset (New Data - Blue)
+  geom_point(data=meanMTdf_o, aes(x=ID, y=MT), color="blue") +
+  geom_smooth(data=meanMTdf_o, method='lm', aes(x=ID, y=MT), fill="blue", colour="darkblue", linewidth=1) +
+  
+  # Second dataset (Original Data - Red)
+  geom_point(data=meanMTdf, aes(x=ID, y=MT), color="red") +
+  geom_smooth(data=meanMTdf, method='lm', aes(x=ID, y=MT), fill="red", colour="red", linewidth=1) +
+  
+  # Centering the axis range
+  xlim(x_min, x_max) +
+  ylim(y_min, y_max) +
+  
+  # Titles and Labels
+  labs(title="Comparison of Mean Movement Times", x="ID", y="MT") +
+  theme_minimal()
+
+# Print the improved plot
+print(p)
+```
+#The replication of the experiments resulted in very similar results but as we can see in the plots, the confidence interval is high, there is heterocedasticity evidence and the R2 value also seems to tell thatthe models are not good. 
+
+#Also, the widths of the bars and distances where very small from the beginig, so it was always hard, lets try with different experiment configuration: 
+#I used the default widths (16,32,64) and amplitudes (128,256,512) of the mapge and 6 trials.
+```{r}
+meanMTdf_1 <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data3/20211117_1527_MeanMT.csv", header=T)
+rawdf_1 <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/P Fits Law/data3/20211117_1527_RawData.csv", header=T)
+#Model with the mean data
+ggplot(meanMTdf_1, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+```{r}
+model4 <- lm(MT~ID, data = meanMTdf_o)
+summary(model4)
+```
+#Im also gonna do the model with the raw data like before
+```{r}
+#Model with the raw data
+ggplot(rawdf_1, aes(ID, MT)) +
+  geom_point() +
+  geom_smooth(method='lm')
+```
+```{r}
+model5 <- lm(MT~ID, data = rawdf_1)
+summary(model5)
+```
+
+#Finally lets compare side to side the new data 
+```{r}
+
+
+# Find the maximum ID value
+max_id <- min(meanMTdf_1$ID)
+
+# Remove rows where ID == max_id
+meanMTdf_1 <- meanMTdf_1[meanMTdf_1$ID != max_id, ]
+
+# Print to verify
+print(unique(meanMTdf_1$ID))  # Should no longer contain the max ID
+# Find the common range for x and y axes
+x_min <- min(c(meanMTdf$ID, meanMTdf_1$ID))
+x_max <- max(c(meanMTdf$ID, meanMTdf_1$ID))
+y_min <- min(c(meanMTdf$MT, meanMTdf_1$MT))
+y_max <- max(c(meanMTdf$MT, meanMTdf_1$MT))
+
+# Improved plot with color distinction and aligned axes
+p <- ggplot() + 
+  # First dataset (New Data - Blue)
+  geom_point(data=meanMTdf_1, aes(x=ID, y=MT), color="green") +
+  geom_smooth(data=meanMTdf_1, method='lm', aes(x=ID, y=MT), fill="green", colour="darkgreen", linewidth=1) +
+  
+  # Second dataset (Original Data - Red)
+  geom_point(data=meanMTdf, aes(x=ID, y=MT), color="red") +
+  geom_smooth(data=meanMTdf, method='lm', aes(x=ID, y=MT), fill="red", colour="red", linewidth=1) +
+  
+  # Centering the axis range
+  xlim(x_min, x_max) +
+  ylim(y_min, y_max) +
+  
+  # Titles and Labels
+  labs(title="Comparison of Mean Movement Times", x="ID", y="MT") +
+  theme_minimal()
+
+# Print the improved plot
+print(p)
+```
+#So, what it seems to me is that the interpretation achieved in the original data is mostly because the experimental set-up that they choose was too complex for the users, and the rule stops to be accurate is the task already surpases the persons capabilities in every trial, because the Final experiment that i ran with the default values of the page makes sense with the fitt's law.

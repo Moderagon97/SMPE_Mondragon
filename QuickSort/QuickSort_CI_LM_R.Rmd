@@ -1,0 +1,71 @@
+---
+title: "QuickSort_CI_LM_R"
+output: html_document
+date: "2025-02-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+##Loading the data
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(ggpubr)
+
+# Load the data
+data <- read.csv("C:/Users/kachi/Documents/José Rodolfo Trabajos/inaoe/UGA/Recherche Metodology/QuickSort/measurements_03_47.csv")
+
+# Remove quotes from Type column
+data$Type <- gsub('"', '', data$Type)
+
+```
+## Calculating the confidence intervals
+```{r}
+# Compute confidence intervals
+confidence_intervals <- data %>%
+  group_by(Size, Type) %>%
+  summarise(
+    Mean_Time = mean(Time),
+    SD_Time = sd(Time),
+    N = n(),
+    SE = SD_Time / sqrt(N),
+    CI_Lower = Mean_Time - qt(0.975, df=N-1) * SE,
+    CI_Upper = Mean_Time + qt(0.975, df=N-1) * SE,
+    .groups = "drop"
+  )
+
+```
+## Fitting a linear model to the data
+```{r}
+# Fit a linear model
+data$Size <- as.numeric(data$Size)
+lm_model <- lm(Time ~ Size + Type, data = data)
+summary(lm_model)
+```
+## Plotting of the CI and LM
+```{r}
+# Plot confidence intervals
+ci_plot <- ggplot(confidence_intervals, aes(x = Size, y = Mean_Time, color = Type)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = CI_Lower, ymax = CI_Upper), width = 0.2) +
+  labs(title = "Confidence Intervals for Sorting Time", y = "Mean Sorting Time", x = "Input Size") +
+  theme_minimal()
+
+# Plot the linear model
+lm_plot <- ggplot(data, aes(x = Size, y = Time, color = Type)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Linear Model Fit", y = "Sorting Time", x = "Input Size") +
+  theme_minimal()
+
+# Display plots separately
+print(ci_plot)
+
+```
+```{r}
+print(lm_plot)
+```
+
+
